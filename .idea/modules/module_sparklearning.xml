@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_sparklearning" default="compile.module.sparklearning">
+  <dirname property="module.sparklearning.basedir" file="${ant.file.module_sparklearning}"/>
+  
+  <property name="module.jdk.home.sparklearning" value="${jdk.home.1.8}"/>
+  <property name="module.jdk.bin.sparklearning" value="${jdk.bin.1.8}"/>
+  <property name="module.jdk.classpath.sparklearning" value="jdk.classpath.1.8"/>
+  
+  <property name="compiler.args.sparklearning" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="sparklearning.output.dir" value="${module.sparklearning.basedir}/../../out/production/sparklearning"/>
+  <property name="sparklearning.testoutput.dir" value="${module.sparklearning.basedir}/../../out/test/sparklearning"/>
+  
+  <path id="sparklearning.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="sparklearning.module.production.classpath">
+    <path refid="${module.jdk.classpath.sparklearning}"/>
+    <path refid="library.scala-sdk-2.12.2.classpath"/>
+    <path refid="library.activation-1.1.1.classpath"/>
+  </path>
+  
+  <path id="sparklearning.runtime.production.module.classpath">
+    <pathelement location="${sparklearning.output.dir}"/>
+    <path refid="library.scala-sdk-2.12.2.classpath"/>
+    <path refid="library.activation-1.1.1.classpath"/>
+  </path>
+  
+  <path id="sparklearning.module.classpath">
+    <path refid="${module.jdk.classpath.sparklearning}"/>
+    <pathelement location="${sparklearning.output.dir}"/>
+    <path refid="library.scala-sdk-2.12.2.classpath"/>
+    <path refid="library.activation-1.1.1.classpath"/>
+  </path>
+  
+  <path id="sparklearning.runtime.module.classpath">
+    <pathelement location="${sparklearning.testoutput.dir}"/>
+    <pathelement location="${sparklearning.output.dir}"/>
+    <path refid="library.scala-sdk-2.12.2.classpath"/>
+    <path refid="library.activation-1.1.1.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.sparklearning">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.sparklearning">
+    <patternset refid="excluded.from.module.sparklearning"/>
+  </patternset>
+  
+  <path id="sparklearning.module.sourcepath">
+    <dirset dir="${module.sparklearning.basedir}/../../../sparklearning">
+      <include name="src/main/scala"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.sparklearning" depends="compile.module.sparklearning.production,compile.module.sparklearning.tests" description="Compile module sparklearning"/>
+  
+  <target name="compile.module.sparklearning.production" depends="register.custom.compilers" description="Compile module sparklearning; production classes">
+    <mkdir dir="${sparklearning.output.dir}"/>
+    <javac2 destdir="${sparklearning.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.sparklearning}/javac">
+      <compilerarg line="${compiler.args.sparklearning}"/>
+      <bootclasspath refid="sparklearning.module.bootclasspath"/>
+      <classpath refid="sparklearning.module.production.classpath"/>
+      <src refid="sparklearning.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.sparklearning"/>
+    </javac2>
+    
+    <copy todir="${sparklearning.output.dir}">
+      <fileset dir="${module.sparklearning.basedir}/../../src/main/scala">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.sparklearning.tests" depends="register.custom.compilers,compile.module.sparklearning.production" description="compile module sparklearning; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.sparklearning" description="cleanup module">
+    <delete dir="${sparklearning.output.dir}"/>
+    <delete dir="${sparklearning.testoutput.dir}"/>
+  </target>
+</project>

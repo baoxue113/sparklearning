@@ -21,14 +21,15 @@ object ScalaApp {
 */
     val sc = new SparkContext("local[2]", "First Spark App")
     /* Load the raw ratings data from a file. Replace 'PATH' with the path to the MovieLens data */
-    val rawData = sc.textFile("/PATH/ml-100k/u.data")
-    rawData.first()
+    val path = "file:///Users/zhangfan/kaifa/IDEA/sparklearning/src/main/scala/chapter04/data/ml-100k"
+    val rawData = sc.textFile(path + "/u.data")
+    val temp1 = rawData.first() //对数据解释为：用户id,电影id,评分,时间戳
     // 14/03/30 13:21:25 INFO SparkContext: Job finished: first at <console>:17, took 0.002843 s
     // res24: String = 196	242	3	881250949
 
     /* Extract the user id, movie id and rating only from the dataset */
-    val rawRatings = rawData.map(_.split("\t").take(3))
-    rawRatings first()
+    val rawRatings = rawData.map(_.split("\t").take(3)) //取每行的前3个数据
+    val temp2 = rawRatings first()
     // 14/03/30 13:22:44 INFO SparkContext: Job finished: first at <console>:21, took 0.003703 s
     // res25: Array[String] = Array(196, 242, 3)
 
@@ -57,7 +58,7 @@ object ScalaApp {
 
     /* Construct the RDD of Rating objects */
     val ratings = rawRatings.map { case Array(user, movie, rating) => Rating(user.toInt, movie.toInt, rating.toDouble) }
-    ratings.first()
+    val temp3 = ratings.first()
     // 14/03/30 13:26:43 INFO SparkContext: Job finished: first at <console>:24, took 0.002808 s
     // res28: org.apache.spark.mllib.recommendation.Rating = Rating(196,242,3.0)
 
@@ -69,16 +70,16 @@ object ScalaApp {
     // model: org.apache.spark.mllib.recommendation.MatrixFactorizationModel = org.apache.spark.mllib.recommendation.MatrixFactorizationModel@7c7fbd3b
 
     /* Inspect the user factors */
-    model.userFeatures
+    val temp4 = model.userFeatures
     // res29: org.apache.spark.rdd.RDD[(Int, Array[Double])] = FlatMappedRDD[1099] at flatMap at ALS.scala:231
 
     /* Count user factors and force computation */
-    model.userFeatures.count
+    val temp5 = model.userFeatures.count
     // ...
     // 14/03/30 13:30:08 INFO SparkContext: Job finished: count at <console>:26, took 5.009689 s
     // res30: Long = 943
 
-    model.productFeatures.count
+    val temp6 = model.productFeatures.count
     // ...
     // 14/03/30 13:30:59 INFO SparkContext: Job finished: count at <console>:26, took 0.247783 s
     // res31: Long = 1682
@@ -105,9 +106,9 @@ object ScalaApp {
     */
 
     /* Load movie titles to inspect the recommendations */
-    val movies = sc.textFile("/PATH/ml-100k/u.item")
+    val movies = sc.textFile(path + "/u.item")
     val titles = movies.map(line => line.split("\\|").take(2)).map(array => (array(0).toInt, array(1))).collectAsMap()
-    titles(123)
+    val temp7 = titles(123)
     // res68: String = Frighteners, The (1996)
     val moviesForUser = ratings.keyBy(_.user).lookup(789)
     // moviesForUser: Seq[org.apache.spark.mllib.recommendation.Rating] = WrappedArray(Rating(789,1012,4.0), Rating(789,127,5.0), Rating(789,475,5.0), Rating(789,93,4.0), ...
@@ -201,11 +202,12 @@ object ScalaApp {
     // We'll take the first rating for our example user 789
     val actualRating = moviesForUser.take(1)(0)
     // actualRating: Seq[org.apache.spark.mllib.recommendation.Rating] = WrappedArray(Rating(789,1012,4.0))
-    val predictedRating = model.predict(789, actualRating.product)
+    //val predictedRating = model.predict(789, actualRating.product)
     // ...
     // 14/04/13 13:01:15 INFO SparkContext: Job finished: lookup at MatrixFactorizationModel.scala:46, took 0.025404 s
     // predictedRating: Double = 4.001005374200248
-    val squaredError = math.pow(predictedRating - actualRating.rating, 2.0)
+
+    //val squaredError = math.pow(predictedRating - actualRating.rating, 2.0)
     // squaredError: Double = 1.010777282523947E-6
 
     /* Compute Mean Squared Error across the dataset */
